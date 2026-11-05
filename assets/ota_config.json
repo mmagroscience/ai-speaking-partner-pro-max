@@ -1,0 +1,8 @@
+{
+  "latestVersionCode": 2,
+  "latestVersionName": "1.1.0",
+  "apkUrl": "https://example.com/ai-speaking-partner-pro-max.apk",
+  "changelog": "Call transcripts, mic-to-keyboard fallback, admin PIN, secure API-key storage, progress backup/restore, privacy policy, responsive tablet/web layout and a wider first-call empty state.",
+  "forceUpdate": false,
+  "notice": "Speak a little every day. This update makes practice smoother when the microphone is shy."
+}
