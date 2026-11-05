@@ -41,12 +41,12 @@ jobs:
           if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
             mkdir -p android/keystore
             printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/keystore/release.jks
-            cat > android/key.properties <<EOF
-          storePassword=$ANDROID_KEYSTORE_PASSWORD
-          keyPassword=$ANDROID_KEY_PASSWORD
-          keyAlias=$ANDROID_KEY_ALIAS
-          storeFile=../keystore/release.jks
-          EOF
+            {
+              printf 'storePassword=%s\n' "$ANDROID_KEYSTORE_PASSWORD"
+              printf 'keyPassword=%s\n' "$ANDROID_KEY_PASSWORD"
+              printf 'keyAlias=%s\n' "$ANDROID_KEY_ALIAS"
+              printf 'storeFile=../keystore/release.jks\n'
+            } > android/key.properties
             echo "Release keystore configured."
           else
             echo "No release keystore secret found; Gradle will use debug signing."
