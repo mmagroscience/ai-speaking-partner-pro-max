@@ -39,6 +39,18 @@ over-the-air (OTA) content admin panel.
   show a centred 480-pixel app frame.
 - **OTA updates** — point the app at a remote `ota.json` or generate one from
   the in-app admin panel.
+- **Kids · School Starter** — an 8-week, parent-led plan for 4–6 year olds who
+  just started school: picture-word cards, listen-and-repeat sentences, stars
+  and a printable daily 10-minute routine. Progress is saved on the device.
+
+## What's new in 1.2.0
+
+- New **Kids · School Starter** mode: 8 weeks × 6 picture words + 3 sentence
+  patterns, listen-and-repeat audio, 3-star progress and a parent guide.
+- Kids progress is included in backup export/import and learning-data reset.
+- GitHub Actions now names release files from `pubspec.yaml`, so version bumps
+  need no workflow edits.
+- New dashboard and Practice entry points for the kids plan.
 
 ## What's new in 1.1.0
 
@@ -89,8 +101,8 @@ Play Store bundle. Run it from **Actions → Release APK → Run workflow**, or 
 a version tag:
 
 ```powershell
-git tag v1.1.0
-git push origin v1.1.0
+git tag v1.2.0
+git push origin v1.2.0
 ```
 
 Tagged builds are attached to the GitHub Release automatically. The workflow
@@ -116,7 +128,7 @@ lib/
   state/       AppState (ChangeNotifier + shared_preferences)
   widgets/     shared UI (avatar, cards, buttons, backgrounds)
   screens/     splash, onboarding, home, practice, progress, profile,
-               privacy, admin, call and update flows
+               privacy, admin, call, kids and update flows
 assets/
   branding/    app icon, adaptive foreground + monochrome layer
   audio/       ringtone
@@ -132,7 +144,7 @@ flutter test
 ```
 
 The suite covers the offline coach, catalog integrity, call screen, admin PIN,
-progress export/import and the first-call empty state.
+progress export/import, the kids plan and the first-call empty state.
 
 ## Optional AI keys
 

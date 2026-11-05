@@ -68,12 +68,13 @@ jobs:
 
       - name: Copy friendly names
         run: |
+          VERSION=$(grep -m1 '^version:' pubspec.yaml | sed 's/version: *//' | cut -d'+' -f1)
           mkdir -p dist
-          cp build/app/outputs/flutter-apk/app-release.apk dist/AI_Speaking_Partner_PRO_MAX_v1.1.0.apk
-          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk dist/AI_Speaking_Partner_PRO_MAX_v1.1.0_arm64.apk
-          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk dist/AI_Speaking_Partner_PRO_MAX_v1.1.0_armeabi-v7a.apk
-          cp build/app/outputs/flutter-apk/app-x86_64-release.apk dist/AI_Speaking_Partner_PRO_MAX_v1.1.0_x86_64.apk
-          cp build/app/outputs/bundle/release/app-release.aab dist/AI_Speaking_Partner_PRO_MAX_v1.1.0.aab
+          cp build/app/outputs/flutter-apk/app-release.apk "dist/AI_Speaking_Partner_PRO_MAX_v${VERSION}.apk"
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk "dist/AI_Speaking_Partner_PRO_MAX_v${VERSION}_arm64.apk"
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk "dist/AI_Speaking_Partner_PRO_MAX_v${VERSION}_armeabi-v7a.apk"
+          cp build/app/outputs/flutter-apk/app-x86_64-release.apk "dist/AI_Speaking_Partner_PRO_MAX_v${VERSION}_x86_64.apk"
+          cp build/app/outputs/bundle/release/app-release.aab "dist/AI_Speaking_Partner_PRO_MAX_v${VERSION}.aab"
           sha256sum dist/* > dist/SHA256SUMS.txt
 
       - uses: actions/upload-artifact@v4

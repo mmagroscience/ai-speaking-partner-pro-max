@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/app_theme.dart';
 import '../../core/constants.dart';
 import '../../data/catalog.dart';
+import '../../data/kids_catalog.dart';
 import '../../data/models.dart';
 import '../../state/app_state.dart';
 import '../../widgets/app_background.dart';
@@ -11,6 +12,7 @@ import '../../widgets/common.dart';
 import '../../widgets/scenario_card.dart';
 import '../../widgets/talking_avatar.dart';
 import '../call/incoming_call_screen.dart';
+import '../kids/kids_screen.dart';
 import '../practice/ielts_screen.dart';
 import '../practice/pronunciation_screen.dart';
 import '../practice/vocabulary_screen.dart';
@@ -143,6 +145,15 @@ class DashboardScreen extends StatelessWidget {
                     onTap: () => onOpenTab(1),
                   ),
                 ],
+              ),
+              const SizedBox(height: 14),
+              _KidsBanner(
+                completed: state.kidsCompletedWeeks,
+                total: KidsCatalog.weeks.length,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const KidsScreen()),
+                ),
               ),
               const SizedBox(height: 22),
               SectionHeader(
@@ -684,6 +695,122 @@ class _QuickTile extends StatelessWidget {
                   ],
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _KidsBanner extends StatelessWidget {
+  const _KidsBanner({
+    required this.completed,
+    required this.total,
+    required this.onTap,
+  });
+
+  final int completed;
+  final int total;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(22),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            gradient: AppColors.mintGradient,
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.mint.withValues(alpha: 0.26),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Center(
+                  child: Text('🧸', style: TextStyle(fontSize: 23)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Flexible(
+                          child: Text(
+                            'Kids · School Starter',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'NEW',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 7.5,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.6,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '8-week step-by-step plan • 10 min a day',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontSize: 10.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '$completed/$total weeks done · tap to open',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 9.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Icon(Icons.arrow_forward_rounded,
+                  color: Colors.white, size: 20),
             ],
           ),
         ),

@@ -43,6 +43,7 @@ class AppState extends ChangeNotifier {
   int _otaPreviewVersion = 1;
   List<SessionRecord> sessions = [];
   Set<String> favorites = {};
+  Map<int, int> kidsStars = {};
   VoiceProfile voice = const VoiceProfile();
   List<Scenario> customScenarios = [];
   DateTime? _lastSessionDay;
@@ -138,6 +139,30 @@ class AppState extends ChangeNotifier {
   List<SessionRecord> get recentSessions => sessions.take(5).toList();
 
   bool isFavorite(String id) => favorites.contains(id);
+
+  int kidsStarsFor(int week) => kidsStars[week] ?? 0;
+
+  int get kidsCompletedWeeks =>
+      kidsStars.values.where((stars) => stars > 0).length;
+
+  int get kidsNextWeek {
+    for (var week = 1; week <= 8; week++) {
+      if (kidsStarsFor(week) == 0) return week;
+    }
+    return 8;
+  }
+
+  Future<void> completeKidsWeek(int week, int stars) async {
+    final safeWeek = week.clamp(1, 8).toInt();
+    final safeStars = stars.clamp(2, 3).toInt();
+    if (kidsStarsFor(safeWeek) >= safeStars) return;
+    kidsStars = {...kidsStars, safeWeek: safeStars};
+    await _prefs.setStringList(
+      'kidsStars',
+      kidsStars.entries.map((entry) => '${entry.key}:${entry.value}').toList(),
+    );
+    notifyListeners();
+  }
 
   void toggleFavorite(String id) {
     if (favorites.contains(id)) {
@@ -343,6 +368,7 @@ class AppState extends ChangeNotifier {
       },
       'sessions': sessions.map((s) => s.toJson()).toList(),
       'favorites': favorites.toList(),
+      'kidsStars': kidsStars.map((key, value) => MapEntry('$key', value)),
       'customScenarios': customScenarios.map(_scenarioToJson).toList(),
     });
   }
@@ -422,6 +448,23 @@ class AppState extends ChangeNotifier {
       if (importedFavorites is List) {
         favorites = importedFavorites.whereType<String>().toSet();
         await _prefs.setStringList('favorites', favorites.toList());
+      }
+
+      final importedKids = data['kidsStars'];
+      if (importedKids is Map) {
+        kidsStars = {
+          for (final entry in importedKids.entries)
+            if (int.tryParse('${entry.key}') != null &&
+                entry.value is num &&
+                (entry.value as num).toInt() > 0)
+              int.parse('${entry.key}'): (entry.value as num).toInt().clamp(1, 3).toInt(),
+        };
+        await _prefs.setStringList(
+          'kidsStars',
+          kidsStars.entries
+              .map((entry) => '${entry.key}:${entry.value}')
+              .toList(),
+        );
       }
 
       final importedScenarios = data['customScenarios'];
@@ -530,6 +573,7 @@ class AppState extends ChangeNotifier {
     totalSessions = 0;
     fluency = 0;
     bestPronunciation = 0;
+    kidsStars = {};
     _lastSessionDay = null;
     _lastActiveDay = null;
     await Future.wait([
@@ -540,6 +584,7 @@ class AppState extends ChangeNotifier {
       _prefs.remove('totalSessions'),
       _prefs.remove('fluency'),
       _prefs.remove('bestPronunciation'),
+      _prefs.remove('kidsStars'),
       _prefs.remove('lastSessionDay'),
       _prefs.remove('lastActiveDay'),
     ]);
@@ -569,6 +614,7 @@ class AppState extends ChangeNotifier {
     bestPronunciation = 0;
     sessions = [];
     favorites = {};
+    kidsStars = {};
     voice = const VoiceProfile();
     customScenarios = [];
     _lastSessionDay = null;
@@ -604,6 +650,14 @@ class AppState extends ChangeNotifier {
     fluency = _prefs.getInt('fluency') ?? 0;
     bestPronunciation = _prefs.getInt('bestPronunciation') ?? 0;
     favorites = (_prefs.getStringList('favorites') ?? []).toSet();
+    kidsStars = {
+      for (final entry in _prefs.getStringList('kidsStars') ?? const [])
+        if (entry.contains(':'))
+          if (int.tryParse(entry.split(':').first) != null &&
+              int.tryParse(entry.split(':').last) != null)
+            int.parse(entry.split(':').first):
+                int.parse(entry.split(':').last).clamp(1, 3).toInt(),
+    };
     _lastSessionDay = DateTime.tryParse(_prefs.getString('lastSessionDay') ?? '');
     _lastActiveDay = DateTime.tryParse(_prefs.getString('lastActiveDay') ?? '');
 

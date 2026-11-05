@@ -9,6 +9,7 @@ import '../../widgets/app_background.dart';
 import '../../widgets/common.dart';
 import '../../widgets/scenario_card.dart';
 import '../call/incoming_call_screen.dart';
+import '../kids/kids_screen.dart';
 import 'ielts_screen.dart';
 import 'pronunciation_screen.dart';
 import 'vocabulary_screen.dart';
@@ -170,6 +171,79 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   ),
                 ),
               const SizedBox(height: 16),
+              GlassCard(
+                padding: const EdgeInsets.all(15),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const KidsScreen()),
+                ),
+                color: AppColors.mintSoft.withValues(alpha: 0.55),
+                borderColor: AppColors.mint.withValues(alpha: 0.18),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        gradient: AppColors.mintGradient,
+                        borderRadius: BorderRadius.circular(13),
+                      ),
+                      child: const Center(
+                        child: Text('🧸', style: TextStyle(fontSize: 22)),
+                      ),
+                    ),
+                    const SizedBox(width: 11),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Text(
+                                'Kids · School Starter',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.ink,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.mint.withValues(alpha: 0.18),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Text(
+                                  'NEW',
+                                  style: TextStyle(
+                                    fontSize: 7.5,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.6,
+                                    color: AppColors.mintDeep,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          const Text(
+                            '8-week parent-led plan for school starters',
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              color: AppColors.muted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right_rounded,
+                        color: AppColors.mintDeep),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
               const SectionHeader(
                 title: 'Skill labs',
                 subtitle: 'Target one skill at a time',

@@ -74,4 +74,39 @@ void main() {
     final error = await state.importProgressJson('{"app":"something-else"}');
     expect(error, isNotNull);
   });
+
+  test('kids lesson stars are saved and never downgraded', () async {
+    final state = await AppState.create();
+
+    expect(state.kidsCompletedWeeks, 0);
+    expect(state.kidsNextWeek, 1);
+
+    await state.completeKidsWeek(1, 2);
+    expect(state.kidsStarsFor(1), 2);
+    expect(state.kidsNextWeek, 2);
+    expect(state.kidsCompletedWeeks, 1);
+
+    await state.completeKidsWeek(1, 3);
+    expect(state.kidsStarsFor(1), 3);
+
+    await state.completeKidsWeek(1, 2);
+    expect(state.kidsStarsFor(1), 3);
+
+    await state.completeKidsWeek(9, 3);
+    expect(state.kidsStarsFor(8), 3);
+    expect(state.kidsNextWeek, 2);
+  });
+
+  test('kids progress travels with the backup file', () async {
+    final state = await AppState.create();
+    await state.completeKidsWeek(2, 3);
+
+    final backup = state.exportProgressJson();
+    await state.resetLearningData();
+    expect(state.kidsStarsFor(2), 0);
+
+    expect(await state.importProgressJson(backup), isNull);
+    expect(state.kidsStarsFor(2), 3);
+    expect(state.kidsCompletedWeeks, 1);
+  });
 }
