@@ -176,6 +176,14 @@ void main() {
       '🚩',
     );
     expect(
+      FlashcardEmoji.forWord('truck', 'noun'),
+      '🚚',
+    );
+    expect(
+      FlashcardEmoji.forWord('teacher', 'noun'),
+      '🧑‍🏫',
+    );
+    expect(
       FlashcardEmoji.forWord('a1-word', 'verb'),
       isNotEmpty,
     );

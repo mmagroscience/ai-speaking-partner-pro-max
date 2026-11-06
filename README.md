@@ -48,6 +48,17 @@ content admin panel.
   definitions and real Oxford examples, plus an animated 3D flip, picture
   illustration and listen button. Swipe right to mark a word as known.
 
+## What's new in 1.3.1
+
+- **Redesigned flashcard** to match the dark reference layout: word plus IPA
+  pill at the top, a white illustration panel, and Part of Speech / Level rows.
+- Flip side now uses blue section headers, a tinted definition box, an example
+  panel and coloured synonym, antonym and phrase chips.
+- New centre **See meaning** button, larger illustrations, and a pinned practice
+  prompt at the bottom of every card.
+- Added picture illustrations for 200+ everyday nouns (vehicles, jobs, body,
+  sport, places and objects) that used to fall back to a generic icon.
+
 ## What's new in 1.3.0
 
 - New **flashcard module** with 14 levels: Baby, Class 1–12 and University.
