@@ -12,7 +12,6 @@ class FlashcardService {
   FlashcardService._();
 
   static const assetPath = 'assets/oxford_3000.json';
-  static const deckSize = 20;
 
   static List<Flashcard>? _all;
   static Future<List<Flashcard>>? _pending;
@@ -135,14 +134,15 @@ class FlashcardService {
     return level.bandIndex < bandCount % parts ? base + 1 : base;
   }
 
-  /// Picks the next study deck, preferring words the learner has not seen.
+  /// Builds the study deck for a level. By default the whole level pool is
+  /// returned (University is ~3,000 cards); pass [size] to cap it.
   static List<Flashcard> buildDeck(
     List<Flashcard> all,
     StudyLevel level,
     Set<String> seen,
     Set<String> known, {
     int seed = 0,
-    int size = deckSize,
+    int size = 0,
   }) {
     final pool = poolFor(all, level, seed: seed);
     final fresh = <Flashcard>[];
@@ -156,7 +156,7 @@ class FlashcardService {
       }
     }
     final deck = [...fresh, ...review];
-    if (deck.length <= size) return deck;
-    return deck.sublist(0, size);
+    if (size > 0 && deck.length > size) return deck.sublist(0, size);
+    return deck;
   }
 }

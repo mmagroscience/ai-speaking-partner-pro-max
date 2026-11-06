@@ -38,7 +38,9 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> {
                 children: [
                   HeaderBar(
                     title: 'Flashcards',
-                    subtitle: 'Oxford 3000 • Baby → University',
+                    subtitle: all == null
+                        ? 'Oxford 3000 • Baby → University'
+                        : '${all.length} cards • Baby → University',
                     trailing: Pill(
                       label: '${state.flashKnown.length} known',
                       color: AppColors.mintDeep,
@@ -140,13 +142,10 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> {
                         Center(
                           child: Text(
                             'সব কার্ড অফলাইনে কাজ করে — ইন্টারনেট লাগবে না।',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
+                            style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
                                   fontSize: 10,
-                                  color:
-                                      AppColors.muted.withValues(alpha: 0.8),
+                                  color: AppColors.muted.withValues(alpha: 0.8),
                                 ),
                           ),
                         ),
@@ -226,10 +225,7 @@ class _LevelHero extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 9,
-                  vertical: 5,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(20),

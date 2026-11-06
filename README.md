@@ -48,6 +48,15 @@ content admin panel.
   definitions and real Oxford examples, plus an animated 3D flip, picture
   illustration and listen button. Swipe right to mark a word as known.
 
+## What's new in 1.3.2
+
+- Every level now opens its **complete deck** instead of a 20-card sample:
+  University covers all **2,958 Oxford words**, Baby all 48 first words, and
+  each class its own slice of the A1–B2 bands (3,006 cards in total).
+- The Flashcards overview shows the total card count under the title.
+- `buildDeck` keeps an optional `size` cap for callers that need a short
+  session.
+
 ## What's new in 1.3.1
 
 - **Redesigned flashcard** to match the dark reference layout: word plus IPA

@@ -6,8 +6,8 @@ class AppInfo {
   AppInfo._();
   static const name = 'AI Speaking Partner';
   static const edition = 'PRO MAX';
-  static const versionName = '1.3.1';
-  static const versionCode = 5;
+  static const versionName = '1.3.2';
+  static const versionCode = 6;
 }
 
 const kDefaultOtaUrl = '';

@@ -84,11 +84,7 @@ class _FlashcardStudyScreenState extends State<FlashcardStudyScreen> {
       seed: _seed,
     );
     if (deck.isEmpty) {
-      deck = FlashcardService.poolFor(
-        all,
-        _level,
-        seed: _seed,
-      ).take(FlashcardService.deckSize).toList();
+      deck = FlashcardService.poolFor(all, _level, seed: _seed);
     }
     if (!mounted) return;
     setState(() {

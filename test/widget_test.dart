@@ -22,7 +22,9 @@ void main() {
   });
 
   test('offline coach replies and corrects a common mistake', () {
-    final scenario = Catalog.scenarios.firstWhere((s) => s.id == 'meet-someone');
+    final scenario = Catalog.scenarios.firstWhere(
+      (s) => s.id == 'meet-someone',
+    );
     final reply = DemoAi.reply(
       persona: Catalog.personaById(scenario.personaId),
       scenario: scenario,
@@ -156,36 +158,46 @@ void main() {
       {deck.first.key},
       seed: 4,
     );
-    expect(
-      withoutFirst.any((card) => card.key == deck.first.key),
-      isFalse,
+    expect(withoutFirst.any((card) => card.key == deck.first.key), isFalse);
+  });
+
+  test('a level deck keeps every card instead of a 20-card sample', () {
+    final cards = <Flashcard>[
+      for (var i = 0; i < 36; i++)
+        Flashcard(
+          word: 'word-$i',
+          type: 'noun',
+          cefr: 'a2',
+          phonetic: 'test',
+          senses: [FlashSense(definition: 'word $i')],
+        ),
+    ];
+    final deck = FlashcardService.buildDeck(
+      cards,
+      StudyLevel.university,
+      const {},
+      const {},
+      seed: 3,
     );
+    expect(deck, hasLength(36));
+
+    final capped = FlashcardService.buildDeck(
+      cards,
+      StudyLevel.university,
+      const {},
+      const {},
+      seed: 3,
+      size: 10,
+    );
+    expect(capped, hasLength(10));
   });
 
   test('card illustration prefers curated emoji over the fallback', () {
-    expect(
-      FlashcardEmoji.forWord('apple', 'noun'),
-      '🍎',
-    );
-    expect(
-      FlashcardEmoji.forWord('computer', 'noun'),
-      '💻',
-    );
-    expect(
-      FlashcardEmoji.forWord('beginning', 'noun'),
-      '🚩',
-    );
-    expect(
-      FlashcardEmoji.forWord('truck', 'noun'),
-      '🚚',
-    );
-    expect(
-      FlashcardEmoji.forWord('teacher', 'noun'),
-      '🧑‍🏫',
-    );
-    expect(
-      FlashcardEmoji.forWord('a1-word', 'verb'),
-      isNotEmpty,
-    );
+    expect(FlashcardEmoji.forWord('apple', 'noun'), '🍎');
+    expect(FlashcardEmoji.forWord('computer', 'noun'), '💻');
+    expect(FlashcardEmoji.forWord('beginning', 'noun'), '🚩');
+    expect(FlashcardEmoji.forWord('truck', 'noun'), '🚚');
+    expect(FlashcardEmoji.forWord('teacher', 'noun'), '🧑‍🏫');
+    expect(FlashcardEmoji.forWord('a1-word', 'verb'), isNotEmpty);
   });
 }
