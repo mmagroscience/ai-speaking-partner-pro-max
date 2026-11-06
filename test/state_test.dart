@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:ai_speaking_partner/data/flashcard_models.dart';
 import 'package:ai_speaking_partner/data/models.dart';
 import 'package:ai_speaking_partner/services/secure_store.dart';
 import 'package:ai_speaking_partner/state/app_state.dart';
@@ -108,5 +109,37 @@ void main() {
     expect(await state.importProgressJson(backup), isNull);
     expect(state.kidsStarsFor(2), 3);
     expect(state.kidsCompletedWeeks, 1);
+  });
+
+  test('flashcard level, known and seen words are saved', () async {
+    final state = await AppState.create();
+
+    expect(state.studyLevel, StudyLevel.class5);
+    expect(state.flashKnown, isEmpty);
+
+    await state.setStudyLevel(StudyLevel.university);
+    await state.markFlashSeen('Believe');
+    await state.setFlashKnown('believe', true);
+    await state.completeFlashDeck();
+
+    expect(state.studyLevel, StudyLevel.university);
+    expect(state.hasSeenFlash('BELIEVE'), isTrue);
+    expect(state.isFlashKnown('Believe'), isTrue);
+    expect(state.flashDecks, 1);
+
+    await state.setFlashKnown('believe', false);
+    expect(state.isFlashKnown('believe'), isFalse);
+
+    await state.setFlashKnown('believe', true);
+    final backup = state.exportProgressJson();
+    await state.resetLearningData();
+    expect(state.isFlashKnown('believe'), isFalse);
+    expect(state.flashDecks, 0);
+
+    expect(await state.importProgressJson(backup), isNull);
+    expect(state.studyLevel, StudyLevel.university);
+    expect(state.isFlashKnown('believe'), isTrue);
+    expect(state.hasSeenFlash('believe'), isTrue);
+    expect(state.flashDecks, 1);
   });
 }

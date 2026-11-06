@@ -7,8 +7,9 @@
 A face-to-face AI speaking coach built with Flutter. The app simulates a video
 call with an AI tutor, listens to your voice, replies with a natural-sounding
 coach, and gives pronunciation, fluency and vocabulary feedback. It also has an
-IELTS speaking mock, a three-tone vocabulary bank, a voice-cloning demo and an
-over-the-air (OTA) content admin panel.
+IELTS speaking mock, a three-tone vocabulary bank, an Oxford 3000 flashcard deck,
+a kids school-starter plan, a voice-cloning demo and an over-the-air (OTA)
+content admin panel.
 
 ## Highlights
 
@@ -42,6 +43,22 @@ over-the-air (OTA) content admin panel.
 - **Kids · School Starter** — an 8-week, parent-led plan for 4–6 year olds who
   just started school: picture-word cards, listen-and-repeat sentences, stars
   and a printable daily 10-minute routine. Progress is saved on the device.
+- **Oxford 3000 flashcards** — 2,958 words bundled offline across Baby, Class
+  1–12 and University. Every card has IPA, part of speech, CEFR level,
+  definitions and real Oxford examples, plus an animated 3D flip, picture
+  illustration and listen button. Swipe right to mark a word as known.
+
+## What's new in 1.3.0
+
+- New **flashcard module** with 14 levels: Baby, Class 1–12 and University.
+- **Oxford 3000 deck** bundled as a 538 KB offline asset: 2,958 words with IPA,
+  part of speech, CEFR band, up to two definitions and examples per word.
+- Animated flip card with a floating picture illustration, text-to-speech,
+  swipe-left to review again, and swipe-right to mark a word as known.
+- Curated synonyms, antonyms and common phrases for the most useful words.
+- Level picker, per-deck progress, known-word counters and a new **Cards** tab,
+  dashboard banner, Practice card and Profile shortcut.
+- Flashcard progress travels with backup export/import and learning-data reset.
 
 ## What's new in 1.2.0
 
@@ -101,8 +118,8 @@ Play Store bundle. Run it from **Actions → Release APK → Run workflow**, or 
 a version tag:
 
 ```powershell
-git tag v1.2.0
-git push origin v1.2.0
+git tag v1.3.0
+git push origin v1.3.0
 ```
 
 Tagged builds are attached to the GitHub Release automatically. The workflow
@@ -123,17 +140,18 @@ the debug key — fine for testing, not for Play Store updates.
 ```
 lib/
   core/        theme, constants, helpers
-  data/        models, catalog, offline demo coach
-  services/    AI, speech, TTS, pronunciation, IELTS, OTA, secure storage
+  data/        models, catalog, kids plan, flashcard models + Oxford extras
+  services/    AI, speech, TTS, pronunciation, IELTS, OTA, flashcards, storage
   state/       AppState (ChangeNotifier + shared_preferences)
   widgets/     shared UI (avatar, cards, buttons, backgrounds)
   screens/     splash, onboarding, home, practice, progress, profile,
-               privacy, admin, call, kids and update flows
+               privacy, admin, call, kids, flashcards and update flows
 assets/
   branding/    app icon, adaptive foreground + monochrome layer
   audio/       ringtone
   fonts/       Poppins + Hind Siliguri
   ota_config.json
+  oxford_3000.json  offline Oxford 3000 deck
 ```
 
 ## Tests
@@ -144,7 +162,8 @@ flutter test
 ```
 
 The suite covers the offline coach, catalog integrity, call screen, admin PIN,
-progress export/import, the kids plan and the first-call empty state.
+progress export/import, the kids plan, study-level mapping, Oxford deck slicing
+and flashcard persistence.
 
 ## Optional AI keys
 

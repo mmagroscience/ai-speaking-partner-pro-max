@@ -5,6 +5,7 @@ import '../../core/app_theme.dart';
 import '../../state/app_state.dart';
 import '../update_dialog.dart';
 import 'dashboard_screen.dart';
+import '../flashcards/flashcards_screen.dart';
 import '../practice/practice_screen.dart';
 import '../profile/profile_screen.dart';
 import '../progress/progress_screen.dart';
@@ -44,6 +45,7 @@ class _HomeShellState extends State<HomeShell> {
     final pages = [
       DashboardScreen(onOpenTab: _goTo),
       const PracticeScreen(),
+      const FlashcardsScreen(),
       ProgressScreen(onStartPractice: () => _goTo(1)),
       const ProfileScreen(),
     ];
@@ -86,18 +88,25 @@ class _HomeShellState extends State<HomeShell> {
                 onTap: () => _goTo(1),
               ),
               _NavItem(
+                icon: Icons.style_rounded,
+                outline: Icons.style_outlined,
+                label: 'Cards',
+                selected: _index == 2,
+                onTap: () => _goTo(2),
+              ),
+              _NavItem(
                 icon: Icons.insights_rounded,
                 outline: Icons.insights_outlined,
                 label: 'Progress',
-                selected: _index == 2,
-                onTap: () => _goTo(2),
+                selected: _index == 3,
+                onTap: () => _goTo(3),
               ),
               _NavItem(
                 icon: Icons.person_rounded,
                 outline: Icons.person_outline_rounded,
                 label: 'Profile',
-                selected: _index == 3,
-                onTap: () => _goTo(3),
+                selected: _index == 4,
+                onTap: () => _goTo(4),
               ),
             ],
           ),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/app_theme.dart';
 import '../../core/constants.dart';
 import '../../data/catalog.dart';
+import '../../data/flashcard_models.dart';
 import '../../data/kids_catalog.dart';
 import '../../data/models.dart';
 import '../../state/app_state.dart';
@@ -12,6 +13,7 @@ import '../../widgets/common.dart';
 import '../../widgets/scenario_card.dart';
 import '../../widgets/talking_avatar.dart';
 import '../call/incoming_call_screen.dart';
+import '../flashcards/flashcards_screen.dart';
 import '../kids/kids_screen.dart';
 import '../practice/ielts_screen.dart';
 import '../practice/pronunciation_screen.dart';
@@ -138,15 +140,29 @@ class DashboardScreen extends StatelessWidget {
                     ),
                   ),
                   _QuickTile(
-                    icon: Icons.explore_rounded,
-                    title: 'Scenarios',
-                    subtitle: 'Real-life roleplay',
-                    colors: const [Color(0xFF38BDF8), Color(0xFF0284C7)],
-                    onTap: () => onOpenTab(1),
+                    icon: Icons.style_rounded,
+                    title: 'Flashcards',
+                    subtitle: 'Oxford 3000',
+                    colors: const [Color(0xFF818CF8), Color(0xFF4338CA)],
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const FlashcardsScreen(),
+                      ),
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 14),
+              _CardsBanner(
+                level: state.studyLevel,
+                known: state.flashKnown.length,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FlashcardsScreen()),
+                ),
+              ),
+              const SizedBox(height: 10),
               _KidsBanner(
                 completed: state.kidsCompletedWeeks,
                 total: KidsCatalog.weeks.length,
@@ -696,6 +712,198 @@ class _QuickTile extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CardsBanner extends StatelessWidget {
+  const _CardsBanner({
+    required this.level,
+    required this.known,
+    required this.onTap,
+  });
+
+  final StudyLevel level;
+  final int known;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(22),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF2E1065), Color(0xFF4C1D95), Color(0xFF6D28D9)],
+            ),
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.purple.withValues(alpha: 0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 52,
+                height: 50,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Positioned(
+                      left: 8,
+                      top: 4,
+                      child: _MiniCard(
+                        color: const Color(0xFFFBBF24),
+                        angle: -0.18,
+                      ),
+                    ),
+                    Positioned(
+                      left: 3,
+                      top: 9,
+                      child: _MiniCard(
+                        color: const Color(0xFFA78BFA),
+                        angle: 0.1,
+                      ),
+                    ),
+                    Positioned(
+                      left: 0,
+                      top: 14,
+                      child: _MiniCard(
+                        color: Colors.white,
+                        angle: 0,
+                        letter: 'Aa',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Flexible(
+                          child: Text(
+                            'Oxford 3000 Flashcards',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.18),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'NEW',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 7.5,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.6,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Baby → University • IPA + examples',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.82),
+                        fontSize: 10.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${level.label} selected • $known known · tap to study',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.66),
+                        fontSize: 9.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Icon(
+                Icons.arrow_forward_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MiniCard extends StatelessWidget {
+  const _MiniCard({
+    required this.color,
+    required this.angle,
+    this.letter,
+  });
+
+  final Color color;
+  final double angle;
+  final String? letter;
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.rotate(
+      angle: angle,
+      child: Container(
+        width: 34,
+        height: 42,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(6),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.18),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            letter ?? '',
+            style: const TextStyle(
+              color: AppColors.deep,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
       ),

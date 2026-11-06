@@ -9,6 +9,7 @@ import '../../widgets/app_background.dart';
 import '../../widgets/common.dart';
 import '../../widgets/scenario_card.dart';
 import '../call/incoming_call_screen.dart';
+import '../flashcards/flashcards_screen.dart';
 import '../kids/kids_screen.dart';
 import 'ielts_screen.dart';
 import 'pronunciation_screen.dart';
@@ -119,6 +120,79 @@ class _PracticeScreenState extends State<PracticeScreen> {
                             onTap: () => setState(() => _filter = category),
                           ),
                         ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              GlassCard(
+                padding: const EdgeInsets.all(14),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FlashcardsScreen()),
+                ),
+                color: AppColors.pale.withValues(alpha: 0.7),
+                borderColor: AppColors.lavender.withValues(alpha: 0.3),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        gradient: AppColors.heroGradient,
+                        borderRadius: BorderRadius.circular(13),
+                      ),
+                      child: const Center(
+                        child: Text('🃏', style: TextStyle(fontSize: 22)),
+                      ),
+                    ),
+                    const SizedBox(width: 11),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Text(
+                                'Oxford 3000 Flashcards',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.ink,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.purple.withValues(alpha: 0.16),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Text(
+                                  'NEW',
+                                  style: TextStyle(
+                                    fontSize: 7.5,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.6,
+                                    color: AppColors.purple,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          const Text(
+                            'Baby → University • IPA, examples & flip cards',
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              color: AppColors.muted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right_rounded,
+                        color: AppColors.purple),
                   ],
                 ),
               ),

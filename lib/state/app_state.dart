@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/catalog.dart';
+import '../data/flashcard_models.dart';
 import '../data/models.dart';
 import '../services/ai_service.dart';
 import '../services/ota_service.dart';
@@ -44,6 +45,10 @@ class AppState extends ChangeNotifier {
   List<SessionRecord> sessions = [];
   Set<String> favorites = {};
   Map<int, int> kidsStars = {};
+  StudyLevel studyLevel = StudyLevel.class5;
+  Set<String> flashKnown = {};
+  Set<String> flashSeen = {};
+  int flashDecks = 0;
   VoiceProfile voice = const VoiceProfile();
   List<Scenario> customScenarios = [];
   DateTime? _lastSessionDay;
@@ -75,18 +80,15 @@ class AppState extends ChangeNotifier {
 
   bool get usesDefaultAdminPin => adminPin == defaultAdminPin;
 
-  List<Scenario> get allScenarios => [
-        ...Catalog.scenarios,
-        ...customScenarios,
-      ];
+  List<Scenario> get allScenarios => [...Catalog.scenarios, ...customScenarios];
 
   Persona get customPersona => Catalog.personaById('custom').copyWith(
-        name: voice.displayName.trim().isEmpty
-            ? 'Familiar Person'
-            : voice.displayName.trim(),
-        role: voice.cloned ? 'Your cloned companion' : 'Your familiar person',
-        isCustom: true,
-      );
+    name: voice.displayName.trim().isEmpty
+        ? 'Familiar Person'
+        : voice.displayName.trim(),
+    role: voice.cloned ? 'Your cloned companion' : 'Your familiar person',
+    isCustom: true,
+  );
 
   Persona personaFor(Scenario scenario) {
     if (scenario.personaId == 'custom') return customPersona;
@@ -108,10 +110,10 @@ class AppState extends ChangeNotifier {
   }
 
   String goalLabel(AppGoal value) => switch (helpLanguage) {
-        HelpLanguage.english => value.label,
-        HelpLanguage.bangla => value.bnLabel,
-        HelpLanguage.hindi => value.hiLabel,
-      };
+    HelpLanguage.english => value.label,
+    HelpLanguage.bangla => value.bnLabel,
+    HelpLanguage.hindi => value.hiLabel,
+  };
 
   int get averageFluency {
     if (sessions.isEmpty) return fluency;
@@ -161,6 +163,51 @@ class AppState extends ChangeNotifier {
       'kidsStars',
       kidsStars.entries.map((entry) => '${entry.key}:${entry.value}').toList(),
     );
+    notifyListeners();
+  }
+
+  bool isFlashKnown(String word) => flashKnown.contains(word.toLowerCase());
+
+  bool hasSeenFlash(String word) => flashSeen.contains(word.toLowerCase());
+
+  Future<void> setStudyLevel(StudyLevel level) async {
+    if (studyLevel == level) return;
+    studyLevel = level;
+    await _prefs.setString('studyLevel', level.name);
+    notifyListeners();
+  }
+
+  Future<void> markFlashSeen(String word) async {
+    if (!flashSeen.add(word.toLowerCase())) return;
+    await _prefs.setStringList('flashSeen', flashSeen.toList());
+  }
+
+  Future<void> setFlashKnown(String word, bool known) async {
+    final key = word.toLowerCase();
+    if (known) {
+      flashKnown.add(key);
+    } else {
+      flashKnown.remove(key);
+    }
+    await _prefs.setStringList('flashKnown', flashKnown.toList());
+    notifyListeners();
+  }
+
+  Future<void> completeFlashDeck() async {
+    flashDecks += 1;
+    await _prefs.setInt('flashDecks', flashDecks);
+    notifyListeners();
+  }
+
+  Future<void> resetFlashProgress() async {
+    flashKnown = {};
+    flashSeen = {};
+    flashDecks = 0;
+    await Future.wait([
+      _prefs.remove('flashKnown'),
+      _prefs.remove('flashSeen'),
+      _prefs.remove('flashDecks'),
+    ]);
     notifyListeners();
   }
 
@@ -227,12 +274,15 @@ class AppState extends ChangeNotifier {
 
   Future<void> setVoiceProfile(VoiceProfile value) async {
     voice = value;
-    await _prefs.setString('voiceProfile', jsonEncode({
-      'displayName': voice.displayName,
-      'photoBase64': voice.photoBase64,
-      'voiceFileName': voice.voiceFileName,
-      'cloned': voice.cloned,
-    }));
+    await _prefs.setString(
+      'voiceProfile',
+      jsonEncode({
+        'displayName': voice.displayName,
+        'photoBase64': voice.photoBase64,
+        'voiceFileName': voice.voiceFileName,
+        'cloned': voice.cloned,
+      }),
+    );
     notifyListeners();
   }
 
@@ -310,18 +360,18 @@ class AppState extends ChangeNotifier {
   }
 
   Map<String, dynamic> _scenarioToJson(Scenario s) => {
-        'id': s.id,
-        'title': s.title,
-        'subtitle': s.subtitle,
-        'category': s.category,
-        'description': s.description,
-        'aiRole': s.aiRole,
-        'openingLine': s.openingLine,
-        'emoji': s.emoji,
-        'level': s.level.name,
-        'goals': s.goals,
-        'personaId': s.personaId,
-      };
+    'id': s.id,
+    'title': s.title,
+    'subtitle': s.subtitle,
+    'category': s.category,
+    'description': s.description,
+    'aiRole': s.aiRole,
+    'openingLine': s.openingLine,
+    'emoji': s.emoji,
+    'level': s.level.name,
+    'goals': s.goals,
+    'personaId': s.personaId,
+  };
 
   Scenario _scenarioFromJson(Map raw) {
     final item = raw.cast<String, dynamic>();
@@ -339,7 +389,8 @@ class AppState extends ChangeNotifier {
         (l) => l.name == item['level'],
         orElse: () => CefrLevel.intermediate,
       ),
-      goals: (item['goals'] as List?)?.cast<String>() ??
+      goals:
+          (item['goals'] as List?)?.cast<String>() ??
           const ['Keep the conversation going'],
       colors: const [Color(0xFFA78BFA), Color(0xFF7C3AED)],
       personaId: item['personaId'] as String? ?? 'sarah',
@@ -369,6 +420,10 @@ class AppState extends ChangeNotifier {
       'sessions': sessions.map((s) => s.toJson()).toList(),
       'favorites': favorites.toList(),
       'kidsStars': kidsStars.map((key, value) => MapEntry('$key', value)),
+      'studyLevel': studyLevel.name,
+      'flashKnown': flashKnown.toList(),
+      'flashSeen': flashSeen.toList(),
+      'flashDecks': flashDecks,
       'customScenarios': customScenarios.map(_scenarioToJson).toList(),
     });
   }
@@ -404,8 +459,7 @@ class AppState extends ChangeNotifier {
       if (stats is Map) {
         streak = (stats['streak'] as num?)?.toInt() ?? 0;
         minutesToday = (stats['minutesToday'] as num?)?.toInt() ?? 0;
-        bestPronunciation =
-            (stats['bestPronunciation'] as num?)?.toInt() ?? 0;
+        bestPronunciation = (stats['bestPronunciation'] as num?)?.toInt() ?? 0;
         final last = stats['lastSessionDay'] as String? ?? '';
         _lastSessionDay = DateTime.tryParse(last);
       }
@@ -457,7 +511,10 @@ class AppState extends ChangeNotifier {
             if (int.tryParse('${entry.key}') != null &&
                 entry.value is num &&
                 (entry.value as num).toInt() > 0)
-              int.parse('${entry.key}'): (entry.value as num).toInt().clamp(1, 3).toInt(),
+              int.parse('${entry.key}'): (entry.value as num)
+                  .toInt()
+                  .clamp(1, 3)
+                  .toInt(),
         };
         await _prefs.setStringList(
           'kidsStars',
@@ -467,9 +524,42 @@ class AppState extends ChangeNotifier {
         );
       }
 
+      final importedStudyLevel = data['studyLevel'];
+      if (importedStudyLevel is String) {
+        studyLevel = StudyLevelX.fromName(importedStudyLevel);
+        await _prefs.setString('studyLevel', studyLevel.name);
+      }
+
+      final importedFlashKnown = data['flashKnown'];
+      if (importedFlashKnown is List) {
+        flashKnown = importedFlashKnown
+            .whereType<String>()
+            .map((word) => word.toLowerCase())
+            .toSet();
+        await _prefs.setStringList('flashKnown', flashKnown.toList());
+      }
+
+      final importedFlashSeen = data['flashSeen'];
+      if (importedFlashSeen is List) {
+        flashSeen = importedFlashSeen
+            .whereType<String>()
+            .map((word) => word.toLowerCase())
+            .toSet();
+        await _prefs.setStringList('flashSeen', flashSeen.toList());
+      }
+
+      final importedDecks = data['flashDecks'];
+      if (importedDecks is num) {
+        flashDecks = importedDecks.toInt();
+        await _prefs.setInt('flashDecks', flashDecks);
+      }
+
       final importedScenarios = data['customScenarios'];
       if (importedScenarios is List) {
-        customScenarios = importedScenarios.whereType<Map>().map(_scenarioFromJson).toList();
+        customScenarios = importedScenarios
+            .whereType<Map>()
+            .map(_scenarioFromJson)
+            .toList();
         await _saveCustomScenarios();
       }
 
@@ -491,7 +581,10 @@ class AppState extends ChangeNotifier {
       minutesToday = minutes;
     } else {
       final last = DateTime(
-          _lastSessionDay!.year, _lastSessionDay!.month, _lastSessionDay!.day);
+        _lastSessionDay!.year,
+        _lastSessionDay!.month,
+        _lastSessionDay!.day,
+      );
       final diff = today.difference(last).inDays;
       if (diff == 0) {
         if (streak == 0) streak = 1;
@@ -527,8 +620,14 @@ class AppState extends ChangeNotifier {
       _prefs.setInt('totalMinutes', totalMinutes),
       _prefs.setInt('totalSessions', totalSessions),
       _prefs.setInt('fluency', fluency),
-      _prefs.setString('lastSessionDay', _lastSessionDay?.toIso8601String() ?? ''),
-      _prefs.setString('lastActiveDay', _lastActiveDay?.toIso8601String() ?? ''),
+      _prefs.setString(
+        'lastSessionDay',
+        _lastSessionDay?.toIso8601String() ?? '',
+      ),
+      _prefs.setString(
+        'lastActiveDay',
+        _lastActiveDay?.toIso8601String() ?? '',
+      ),
       _prefs.setString(
         'sessions',
         jsonEncode(sessions.map((s) => s.toJson()).toList()),
@@ -557,13 +656,13 @@ class AppState extends ChangeNotifier {
   }
 
   OtaConfig get previewOtaConfig => OtaConfig(
-        latestVersionCode: _otaPreviewVersion,
-        latestVersionName: '1.0.$_otaPreviewVersion',
-        apkUrl: 'https://example.com/ai-speaking-partner.apk',
-        changelog:
-            'New practice topics, smoother video calls, and pronunciation fixes.',
-        forceUpdate: false,
-      );
+    latestVersionCode: _otaPreviewVersion,
+    latestVersionName: '1.0.$_otaPreviewVersion',
+    apkUrl: 'https://example.com/ai-speaking-partner.apk',
+    changelog:
+        'New practice topics, smoother video calls, and pronunciation fixes.',
+    forceUpdate: false,
+  );
 
   Future<void> resetLearningData() async {
     sessions = [];
@@ -574,6 +673,9 @@ class AppState extends ChangeNotifier {
     fluency = 0;
     bestPronunciation = 0;
     kidsStars = {};
+    flashKnown = {};
+    flashSeen = {};
+    flashDecks = 0;
     _lastSessionDay = null;
     _lastActiveDay = null;
     await Future.wait([
@@ -585,6 +687,9 @@ class AppState extends ChangeNotifier {
       _prefs.remove('fluency'),
       _prefs.remove('bestPronunciation'),
       _prefs.remove('kidsStars'),
+      _prefs.remove('flashKnown'),
+      _prefs.remove('flashSeen'),
+      _prefs.remove('flashDecks'),
       _prefs.remove('lastSessionDay'),
       _prefs.remove('lastActiveDay'),
     ]);
@@ -615,6 +720,10 @@ class AppState extends ChangeNotifier {
     sessions = [];
     favorites = {};
     kidsStars = {};
+    studyLevel = StudyLevel.class5;
+    flashKnown = {};
+    flashSeen = {};
+    flashDecks = 0;
     voice = const VoiceProfile();
     customScenarios = [];
     _lastSessionDay = null;
@@ -655,11 +764,18 @@ class AppState extends ChangeNotifier {
         if (entry.contains(':'))
           if (int.tryParse(entry.split(':').first) != null &&
               int.tryParse(entry.split(':').last) != null)
-            int.parse(entry.split(':').first):
-                int.parse(entry.split(':').last).clamp(1, 3).toInt(),
+            int.parse(entry.split(':').first): int.parse(entry.split(':').last)
+                .clamp(1, 3)
+                .toInt(),
     };
-    _lastSessionDay = DateTime.tryParse(_prefs.getString('lastSessionDay') ?? '');
+    _lastSessionDay = DateTime.tryParse(
+      _prefs.getString('lastSessionDay') ?? '',
+    );
     _lastActiveDay = DateTime.tryParse(_prefs.getString('lastActiveDay') ?? '');
+    studyLevel = StudyLevelX.fromName(_prefs.getString('studyLevel'));
+    flashKnown = (_prefs.getStringList('flashKnown') ?? []).toSet();
+    flashSeen = (_prefs.getStringList('flashSeen') ?? []).toSet();
+    flashDecks = _prefs.getInt('flashDecks') ?? 0;
 
     final rawSessions = _prefs.getString('sessions');
     if (rawSessions != null && rawSessions.isNotEmpty) {
@@ -668,7 +784,9 @@ class AppState extends ChangeNotifier {
         if (list is List) {
           sessions = list
               .whereType<Map>()
-              .map((item) => SessionRecord.fromJson(item.cast<String, dynamic>()))
+              .map(
+                (item) => SessionRecord.fromJson(item.cast<String, dynamic>()),
+              )
               .toList();
         }
       } catch (_) {}
@@ -694,8 +812,10 @@ class AppState extends ChangeNotifier {
       try {
         final list = jsonDecode(rawScenarios);
         if (list is List) {
-          customScenarios =
-              list.whereType<Map>().map(_scenarioFromJson).toList();
+          customScenarios = list
+              .whereType<Map>()
+              .map(_scenarioFromJson)
+              .toList();
         }
       } catch (_) {}
     }
@@ -706,12 +826,18 @@ class AppState extends ChangeNotifier {
       minutesToday = 0;
     } else {
       final last = DateTime(
-          _lastActiveDay!.year, _lastActiveDay!.month, _lastActiveDay!.day);
+        _lastActiveDay!.year,
+        _lastActiveDay!.month,
+        _lastActiveDay!.day,
+      );
       if (today.difference(last).inDays > 0) minutesToday = 0;
     }
     if (_lastSessionDay != null) {
-      final last = DateTime(_lastSessionDay!.year, _lastSessionDay!.month,
-          _lastSessionDay!.day);
+      final last = DateTime(
+        _lastSessionDay!.year,
+        _lastSessionDay!.month,
+        _lastSessionDay!.day,
+      );
       if (today.difference(last).inDays > 1) streak = 0;
     }
   }

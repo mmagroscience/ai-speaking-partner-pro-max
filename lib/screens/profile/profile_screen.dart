@@ -11,6 +11,7 @@ import '../../state/app_state.dart';
 import '../../widgets/app_background.dart';
 import '../../widgets/common.dart';
 import '../admin/admin_gate.dart';
+import '../flashcards/flashcards_screen.dart';
 import '../practice/voice_clone_screen.dart';
 import 'privacy_screen.dart';
 import 'settings_screen.dart';
@@ -164,6 +165,13 @@ class ProfileScreen extends StatelessWidget {
                             label: 'streak',
                           ),
                         ),
+                        _VerticalDivider(),
+                        Expanded(
+                          child: _MiniMetric(
+                            value: '${state.flashKnown.length}',
+                            label: 'words',
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -308,6 +316,16 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 22),
               const SectionHeader(title: 'Settings'),
+              _ActionRow(
+                icon: Icons.style_rounded,
+                title: 'Flashcards · Oxford 3000',
+                subtitle: 'Baby → University • ${state.flashKnown.length} words known',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FlashcardsScreen()),
+                ),
+              ),
+              const SizedBox(height: 8),
               _ActionRow(
                 icon: Icons.tune_rounded,
                 title: 'AI, voice & app settings',
